@@ -24,7 +24,7 @@ export const rootHandler = async (c: Context<Env, "/", {}>) => {
   return c.html(
     <SiteLayout>
       <nav class="flex w-full p-4 justify-between">
-        <h3 class="font-bold text-xl">Robin</h3>
+        <h3 class="font-bold text-xl">Constant</h3>
         {user ? (
           <div class="flex gap-4">
             <p>{user.name}</p>
