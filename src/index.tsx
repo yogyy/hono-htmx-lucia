@@ -11,6 +11,7 @@ import { punchHandler } from "./controller/punch.controller";
 import {
   confirmLogsHandler,
   deleteLogHandler,
+  editLogsHandler,
   updateLogsHandler,
 } from "./controller/logs.controller";
 import {
@@ -40,7 +41,7 @@ app.delete("/deleteProject/:id", deleteProjectHandler);
 
 app.patch("/updateLogs", updateLogsHandler);
 
-app.patch("/editLog/:id", updateLogsHandler);
+app.patch("/editLog/:id", editLogsHandler);
 
 app.patch("/confirmLogEdit/:id", confirmLogsHandler);
 

@@ -11,9 +11,9 @@ export const LogRow = ({ log, editing }: LogProps) => {
     <tr
       id={`log_${log.id}`}
       class="text-center table-row">
-      <td class="table-cell py-4">{getDuration(log)}</td>
-      <td class="table-cell py-4">{log.projectId}</td>
-      <td class="table-cell py-4">
+      <td class="py-4">{getDuration(log)}</td>
+      <td class="py-4">{log.projectId}</td>
+      <td class="py-4">
         {!editing ? (
           log.start?.toLocaleString()
         ) : (
@@ -29,11 +29,11 @@ export const LogRow = ({ log, editing }: LogProps) => {
                 .toISOString()
                 .slice(0, 19)
             }
-            class="bg-neutral-800"
+            class="bg-neutral-800 text-white"
           />
         )}
       </td>
-      <td class="table-cell py-4">
+      <td class="py-4">
         {!editing ? (
           log.end?.toLocaleString()
         ) : (
@@ -52,7 +52,7 @@ export const LogRow = ({ log, editing }: LogProps) => {
           />
         )}
       </td>
-      <td class="flex gap-2 table-cell py-4 text-red-600 px-auto mx-auto items-center justify-between">
+      <td class="flex gap-2 text-red-600 items-center justify-center">
         <button
           type="button"
           hx-trigger="click"
@@ -60,7 +60,7 @@ export const LogRow = ({ log, editing }: LogProps) => {
           hx-delete={`/deleteLog/${log.id}`}
           hx-target={`#log_${log.id}`}
           hx-swap="delete"
-          class="p-auto m-auto">
+          class="p-4">
           <div class="w-full h-full">
             <svg
               viewbox="0 0 32 32"
@@ -126,6 +126,7 @@ export const LogRow = ({ log, editing }: LogProps) => {
             hx-trigger="click"
             hx-patch={`/editLog/${log.id}`}
             hx-target={`#log_${log.id}`}
+            class="p-4"
             hx-swap="outerHTML">
             Edit
           </button>
