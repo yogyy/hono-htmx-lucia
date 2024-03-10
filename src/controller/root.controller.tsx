@@ -63,7 +63,7 @@ export const rootHandler = async (c: Context<Env, "/", {}>) => {
 
             <h3>Your Log Table</h3>
             {
-              <table class="overflow-hidden w-full table table-auto border-separate border border-slate-500 rounded-xl p-0">
+              <table class="overflow-hidden w-full table table-auto border-separate border border-slate-500 rounded-md p-0">
                 <thead class="table-header-group">
                   <tr class="table-row text-start border-b-2 border-slate-500">
                     <th class="table-cell p-4">Duration</th>

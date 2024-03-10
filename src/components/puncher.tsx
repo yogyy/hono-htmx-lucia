@@ -8,7 +8,7 @@ export const Puncher = ({ project, action }: PuncherProps) => {
   return (
     <div
       id={`puncher_${project.id}`}
-      class={`w-full flex flex-col gap-4 p-8 justify-between items-center border rounded-xl ${
+      class={`w-full flex flex-col gap-4 p-8 justify-between items-center border rounded-md ${
         action === "end" && "bg-neutral-700"
       }`}>
       <div class="flex items-center justify-between gap-2">
@@ -20,7 +20,7 @@ export const Puncher = ({ project, action }: PuncherProps) => {
           hx-delete={`/deleteProject/${project.id}`}
           hx-target={`#puncher_${project.id}`}
           hx-swap="delete"
-          class="w-fit text-sm px-4 py-2 border border-red-600 rounded-xl font-bold text-red-600 hover:bg-red-600 hover:text-white transition-all duration-300">
+          class="w-fit text-sm px-4 py-2 border border-red-600 rounded-md font-bold text-red-600 hover:bg-red-600 hover:text-white transition-all duration-300">
           <svg
             viewbox="0 0 32 32"
             width="16"
@@ -73,7 +73,7 @@ export const Puncher = ({ project, action }: PuncherProps) => {
         hx-patch={`/punch/${project.id}`}
         hx-target={`#puncher_${project.id}`}
         hx-swap="outerHTML"
-        class={`rounded-xl px-4 py-2 w-full h-fit ${
+        class={`rounded-md px-4 py-2 w-full h-fit ${
           action === "start" ? "bg-emerald-600" : "bg-red-600"
         }`}>
         {action}
