@@ -21,8 +21,8 @@ dependencies:
     specifier: ^0.28.6
     version: 0.28.6(@types/pg@8.10.4)(pg@8.11.3)
   hono:
-    specifier: ^3.7.2
-    version: 3.7.5
+    specifier: ^4.2.7
+    version: 4.2.7
   lucia:
     specifier: ^2.7.3
     version: 2.7.3
@@ -601,8 +601,8 @@ packages:
     resolution: {integrity: sha512-2bsegYkkHO+h/9MGbn6KWcE45cHZgPANo5LXF7EvWdT0yT2EguSVO1nDgU5c8+ZOPwp2vMNa7YFsJhVcDR9Sdg==}
     dev: true
 
-  /hono@3.7.5:
-    resolution: {integrity: sha512-ZaaqAul84HHLXZKwwfH+eMInidwvRj9IdyOoI5Ze0v+WUOAAtQruml3QaUUWkOuI2Myt6IZAiUqkYklLK77k4g==}
+  /hono@4.2.7:
+    resolution: {integrity: sha512-k1xHi86tJnRIVvqhFMBDGFKJ8r5O+bEsT4P59ZK59r0F300Xd910/r237inVfuT/VmE86RQQffX4OYNda6dLXw==}
     engines: {node: '>=16.0.0'}
     dev: false
 
