@@ -1,21 +1,8 @@
-import { relations } from "drizzle-orm";
-import {
-  bigint,
-  serial,
-  pgTable,
-  timestamp,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { InferSelectModel, relations } from "drizzle-orm";
+import { serial, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 
-// data models
-
-// from lucia
-export const user = pgTable("auth_user", {
-  id: varchar("id", {
-    length: 15, // change this when using custom user ids
-  }).primaryKey(),
-
-  // add other user attributes here
+export const userTable = pgTable("user", {
+  id: varchar("id").primaryKey(),
   name: varchar("name"),
 });
 
@@ -36,12 +23,15 @@ export const logs = pgTable("logs", {
 });
 
 // model relationships
-export const user_relations = relations(user, ({ many }) => ({
+export const user_relations = relations(userTable, ({ many }) => ({
   projects: many(projects),
 }));
 
 export const project_relations = relations(projects, ({ one, many }) => ({
-  user: one(user, { fields: [projects.userId], references: [user.id] }),
+  user: one(userTable, {
+    fields: [projects.userId],
+    references: [userTable.id],
+  }),
   logs: many(logs),
 }));
 
@@ -52,21 +42,14 @@ export const log_relations = relations(logs, ({ one }) => ({
   }),
 }));
 
-// DO NOT DELETE: used by lucia
-export const session = pgTable("user_session", {
-  id: varchar("id", {
-    length: 128,
-  }).primaryKey(),
-  userId: varchar("user_id", {
-    length: 15,
-  })
+export const sessionTable = pgTable("session", {
+  id: varchar("id").primaryKey(),
+  userId: varchar("user_id")
     .notNull()
-    .references(() => user.id),
-  activeExpires: bigint("active_expires", {
-    mode: "number",
-  }).notNull(),
-  idleExpires: bigint("idle_expires", {
-    mode: "number",
+    .references(() => userTable.id),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
   }).notNull(),
 });
 
@@ -78,8 +61,11 @@ export const key = pgTable("user_key", {
     length: 15,
   })
     .notNull()
-    .references(() => user.id),
+    .references(() => userTable.id),
   hashedPassword: varchar("hashed_password", {
     length: 255,
   }),
 });
+
+export type User = InferSelectModel<typeof userTable>;
+export type Session = InferSelectModel<typeof sessionTable>;
