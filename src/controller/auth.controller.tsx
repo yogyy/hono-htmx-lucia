@@ -1,82 +1,95 @@
-import { auth, github_auth } from "@/lucia";
-import { OAuthRequestError } from "@lucia-auth/oauth";
-import { Context, Env } from "hono";
+import { db } from "@/db";
+import { userTable } from "@/db/schema";
+import {
+  createSession,
+  generateSessionToken,
+  invalidateSession,
+} from "@/lib/auth";
+import github from "@/lib/oauth";
+import { deleteSessionTokenCookie, setSessionTokenCookie } from "@/lib/session";
+import { AuthContext, GithubProfile } from "@/types";
+import { generateState, OAuth2RequestError } from "arctic";
+import { eq } from "drizzle-orm";
+import { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
+import { HTTPException } from "hono/http-exception";
 
-export const authHandler = async (c: Context<Env, "/auth", {}>) => {
-  const [url, state] = await github_auth.getAuthorizationUrl();
-  setCookie(c, "github_oauth_state", state, {
-    path: "/",
-    httpOnly: true,
-    maxAge: 60 * 60 * 1000,
-    secure: process.env.NODE_ENV === "production",
-  });
+const authRoutes = new Hono<AuthContext>()
+  .get("/authorize", async (c) => {
+    const state = generateState();
 
-  c.status(302);
-  c.header("Location", url.toString());
-  return c.body(null);
-};
-
-export const authCallbackHandler = async (
-  c: Context<Env, "/auth/callback", {}>
-) => {
-  const storedState = getCookie(c, "github_oauth_state");
-  const state = c.req.query("state");
-  const code = c.req.query("code");
-  // validate state
-  if (
-    !storedState ||
-    !state ||
-    storedState !== state ||
-    typeof code !== "string"
-  ) {
-    return c.status(400);
-  }
-  try {
-    const { getExistingUser, githubUser, createUser } =
-      await github_auth.validateCallback(code);
-    const getUser = async () => {
-      const existingUser = await getExistingUser();
-      if (existingUser) return existingUser;
-      const user = await createUser({
-        attributes: {
-          name: githubUser.login,
-        },
-      });
-      return user;
-    };
-
-    const user = await getUser();
-    const session = await auth.createSession({
-      userId: user.userId,
-      attributes: {},
+    const scopes = ["user:email"];
+    const url = github.createAuthorizationURL(state, scopes);
+    setCookie(c, "github_oauth_state", state, {
+      path: "/",
+      httpOnly: true,
+      maxAge: 60 * 10,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
     });
-    const authRequest = auth.handleRequest(c);
-    authRequest.setSession(session);
 
-    c.status(302);
-    c.header("Location", "/");
-    return c.body(null);
-  } catch (e) {
-    if (e instanceof OAuthRequestError) {
-      // invalid code
-      return c.body(null, { status: 400 });
+    return c.redirect(url.toString());
+  })
+  .get("/callback", async (c) => {
+    const storedState = getCookie(c, "github_oauth_state");
+    const state = c.req.query("state");
+    const code = c.req.query("code") as string;
+    // validate state
+    if (code === null || storedState === null || state !== storedState) {
+      throw new HTTPException(400, { message: "Invalid request" });
     }
-    return c.body(null, { status: 500 });
-  }
-};
+    try {
+      const tokens = await github.validateAuthorizationCode(code);
 
-export const logoutHandler = async (c: Context<Env, "/logout", {}>) => {
-  const auth_request = auth.handleRequest(c);
-  const session = await auth_request.validate();
-  if (!session) {
-    return c.body(null, { status: 401 });
-  }
+      const githubUserResponse = await fetch("https://api.github.com/user", {
+        headers: { Authorization: `Bearer ${tokens.accessToken()}` },
+      });
 
-  await auth.invalidateSession(session.sessionId);
-  auth_request.setSession(null);
-  return c.body(null, {
-    status: 302,
-    headers: { Location: "/" },
+      const githubUser: GithubProfile = await githubUserResponse.json();
+
+      const [existingUser] = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.id, githubUser.id.toString()));
+
+      if (existingUser) {
+        const sessionToken = generateSessionToken();
+        console.log("token at existingUser", sessionToken);
+        const session = await createSession(sessionToken, existingUser.id);
+        setSessionTokenCookie(c, sessionToken, session.expiresAt);
+
+        return c.redirect("/");
+      } else {
+        const [user] = await db
+          .insert(userTable)
+          .values({
+            id: githubUser.id.toString(),
+            name: githubUser.name,
+          })
+          .returning();
+
+        const sessionToken = generateSessionToken();
+        console.log("token at !existingUser", sessionToken);
+        const session = await createSession(sessionToken, user.id);
+        setSessionTokenCookie(c, sessionToken, session.expiresAt);
+      }
+
+      return c.redirect("/");
+    } catch (e) {
+      if (e instanceof OAuth2RequestError) {
+        return c.body(null, { status: 400 });
+      }
+      return c.body(null, { status: 500 });
+    }
+  })
+  .get("/logout", async (c) => {
+    const session = c.get("session");
+    if (!session) return c.newResponse("unauthorized", 401);
+
+    await invalidateSession(session.id);
+    deleteSessionTokenCookie(c);
+
+    return c.redirect("/");
   });
-};
+
+export default authRoutes;
