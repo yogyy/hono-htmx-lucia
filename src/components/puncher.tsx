@@ -17,7 +17,7 @@ export const Puncher = ({ project, action }: PuncherProps) => {
           type="button"
           hx-trigger="click"
           hx-confirm="Are you sure? These will also delete related sessions."
-          hx-delete={`/deleteProject/${project.id}`}
+          hx-delete={`/project/deleteProject/${project.id}`}
           hx-target={`#puncher_${project.id}`}
           hx-swap="delete"
           class="w-fit text-sm px-4 py-2 border border-red-600 rounded-md font-bold text-red-600 hover:bg-red-600 hover:text-white transition-all duration-300">

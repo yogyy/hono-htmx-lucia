@@ -10,7 +10,7 @@ export const ProjectCreator = () => {
       <button
         type="button"
         hx-trigger="click"
-        hx-post="/createProject"
+        hx-post="/project/createProject"
         hx-include="[name='new_project']"
         hx-target="#punchers"
         hx-swap="beforeend"

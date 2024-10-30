@@ -1,19 +1,15 @@
+import { Hono } from "hono";
 import { Puncher } from "@/components";
 import { db, schema } from "@/db";
+import { AuthContext } from "@/types";
 import { desc, eq } from "drizzle-orm";
-import { Context, Env } from "hono";
 
-export const punchHandler = async (c: Context<Env, "/punch/:id", {}>) => {
+const punchRoutes = new Hono<AuthContext>().patch("/:id", async (c) => {
   const project_id = c.req.param("id") as string;
 
   const project = await db.query.projects.findFirst({
     where: eq(schema.projects.id, Number.parseInt(project_id)),
-    with: {
-      logs: {
-        limit: 1,
-        orderBy: desc(schema.logs.start),
-      },
-    },
+    with: { logs: { limit: 1, orderBy: desc(schema.logs.start) } },
   });
 
   if (!project) {
@@ -47,4 +43,6 @@ export const punchHandler = async (c: Context<Env, "/punch/:id", {}>) => {
       />
     );
   }
-};
+});
+
+export default punchRoutes;

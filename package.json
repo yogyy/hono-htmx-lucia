@@ -1,23 +1,23 @@
 {
   "scripts": {
     "dev": "tsx watch src/index.tsx",
-    "generate": "drizzle-kit generate:pg",
-    "migrate": "drizzle-kit push:pg",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit push",
     "drop": "drizzle-kit drop"
   },
   "dependencies": {
     "@hono/node-server": "^1.2.0",
-    "@lucia-auth/adapter-postgresql": "^2.0.2",
-    "@lucia-auth/oauth": "^3.4.0",
-    "dotenv": "^16.3.1",
-    "drizzle-orm": "^0.28.6",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
+    "arctic": "^2.0.1",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.35.3",
     "hono": "^4.5.8",
-    "lucia": "^2.7.3",
-    "pg": "^8.11.3"
+    "pg": "^8.13.1"
   },
   "devDependencies": {
     "@types/pg": "^8.10.4",
-    "drizzle-kit": "^0.19.13",
+    "drizzle-kit": "^0.26.2",
     "tsx": "^3.12.2"
   }
 }

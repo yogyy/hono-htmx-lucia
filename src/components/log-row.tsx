@@ -21,13 +21,14 @@ export const LogRow = ({ log, editing }: LogProps) => {
             name={`start_${log.id}`}
             type="datetime-local"
             value={
-              log.start &&
-              new Date(
-                log.start?.getTime() +
-                  new Date().getTimezoneOffset() * -60 * 1000
-              )
-                .toISOString()
-                .slice(0, 19)
+              (log.start &&
+                new Date(
+                  log.start?.getTime() +
+                    new Date().getTimezoneOffset() * -60 * 1000
+                )
+                  .toISOString()
+                  .slice(0, 19)) ||
+              ""
             }
             class="bg-neutral-800 text-white"
           />
@@ -41,12 +42,14 @@ export const LogRow = ({ log, editing }: LogProps) => {
             name={`end_${log.id}`}
             type="datetime-local"
             value={
-              log.end &&
-              new Date(
-                log.end?.getTime() + new Date().getTimezoneOffset() * -60 * 1000
-              )
-                .toISOString()
-                .slice(0, 19)
+              (log.end &&
+                new Date(
+                  log.end?.getTime() +
+                    new Date().getTimezoneOffset() * -60 * 1000
+                )
+                  .toISOString()
+                  .slice(0, 19)) ||
+              ""
             }
             class="bg-neutral-800"
           />
@@ -57,7 +60,7 @@ export const LogRow = ({ log, editing }: LogProps) => {
           type="button"
           hx-trigger="click"
           hx-confirm="Are you sure?"
-          hx-delete={`/deleteLog/${log.id}`}
+          hx-delete={`/log/deleteLog/${log.id}`}
           hx-target={`#log_${log.id}`}
           hx-swap="delete"
           class="p-4">
@@ -114,7 +117,7 @@ export const LogRow = ({ log, editing }: LogProps) => {
             type="button"
             hx-trigger="click"
             hx-confirm="Confirm edits?"
-            hx-patch={`/confirmLogEdit/${log.id}`}
+            hx-patch={`/log/confirmLogEdit/${log.id}`}
             hx-include={`[name='start_${log.id}'], [name='end_${log.id}']`}
             hx-target={`#log_${log.id}`}
             hx-swap="outerHTML">
@@ -124,7 +127,7 @@ export const LogRow = ({ log, editing }: LogProps) => {
           <button
             type="button"
             hx-trigger="click"
-            hx-patch={`/editLog/${log.id}`}
+            hx-patch={`/log/editLog/${log.id}`}
             hx-target={`#log_${log.id}`}
             class="p-4"
             hx-swap="outerHTML">
