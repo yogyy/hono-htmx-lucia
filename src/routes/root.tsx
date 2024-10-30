@@ -1,24 +1,17 @@
-import { Context, Env } from "hono";
-import { auth } from "@/lucia";
+import { Hono } from "hono";
 import { db, schema } from "@/db";
 import { desc, eq } from "drizzle-orm";
 import { ProjectCreator, Puncher, SiteLayout } from "@/components";
+import { AuthContext } from "@/types";
 
-export const rootHandler = async (c: Context<Env, "/", {}>) => {
-  const auth_request = auth.handleRequest(c);
-  const session = await auth_request.validate();
-  const user = session?.user;
+const rootRoutes = new Hono<AuthContext>().get("/", async (c) => {
+  const user = c.get("user");
   let projects = undefined;
   projects =
     user &&
     (await db.query.projects.findMany({
-      where: eq(schema.projects.userId, user.userId),
-      with: {
-        logs: {
-          orderBy: desc(schema.logs.start),
-          limit: 1,
-        },
-      },
+      where: eq(schema.projects.userId, user.id),
+      with: { logs: { orderBy: desc(schema.logs.start), limit: 1 } },
     }));
 
   return c.html(
@@ -28,10 +21,10 @@ export const rootHandler = async (c: Context<Env, "/", {}>) => {
         {user ? (
           <div class="flex gap-4">
             <p>{user.name}</p>
-            <a href="/logout">Logout</a>
+            <a href="/auth/logout">Logout</a>
           </div>
         ) : (
-          <a href="/auth">Login with Github</a>
+          <a href="/auth/authorize">Login with Github</a>
         )}
       </nav>
       <main class="flex flex-col w-full h-full gap-8 items-center justify-center">
@@ -76,7 +69,7 @@ export const rootHandler = async (c: Context<Env, "/", {}>) => {
 
                 <tbody
                   id="logs-table"
-                  hx-patch="/updateLogs"
+                  hx-patch="/log/updateLogs"
                   hx-trigger="load"
                   hx-target="#logs-table"
                   hx-swap="outerHTML"
@@ -99,4 +92,6 @@ export const rootHandler = async (c: Context<Env, "/", {}>) => {
       </main>
     </SiteLayout>
   );
-};
+});
+
+export default rootRoutes;

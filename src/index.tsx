@@ -2,69 +2,25 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 
 import "dotenv/config";
-import { rootHandler } from "./controller/root.controller";
-import {
-  createProjectHandler,
-  deleteProjectHandler,
-} from "./controller/project.controller";
-import { punchHandler } from "./controller/punch.controller";
-import {
-  confirmLogsHandler,
-  deleteLogHandler,
-  editLogsHandler,
-  updateLogsHandler,
-} from "./controller/logs.controller";
-import {
-  authCallbackHandler,
-  authHandler,
-  logoutHandler,
-} from "./controller/auth.controller";
+import projectRoutes from "./routes/project";
+import punchRoutes from "./routes/punch";
 
-// init
-const app = new Hono();
+import authRoutes from "./routes/auth";
 
-// ------------------------------------------
+import { authentication } from "./middleware";
+import { AuthContext } from "./types";
+import logRoutes from "./routes/logs";
+import rootRoutes from "./routes/root";
 
-// page routes
+const app = new Hono<AuthContext>();
 
-app.get("/", rootHandler);
+app.use("*", authentication);
+app.route("/", rootRoutes);
+app.route("/log", logRoutes);
+app.route("/project", projectRoutes);
+app.route("/punch", punchRoutes);
 
-// ------------------------------------------
-
-// HTMX CRUD
-
-app.post("/createProject", createProjectHandler);
-
-app.patch("/punch/:id", punchHandler);
-
-app.delete("/deleteProject/:id", deleteProjectHandler);
-
-app.patch("/updateLogs", updateLogsHandler);
-
-app.patch("/editLog/:id", editLogsHandler);
-
-app.patch("/confirmLogEdit/:id", confirmLogsHandler);
-
-app.delete("/deleteLog/:id", deleteLogHandler);
-
-// ------------------------------------------
-
-// API endpoints
-
-// TODO: implement OAuth?
-// TODO: CRUD endpoints (projects, logs)
-
-// ------------------------------------------
-
-// authentication
-
-app.get("/auth", authHandler);
-
-app.get("/auth/callback", authCallbackHandler);
-
-app.get("/logout", logoutHandler);
-
-// ------------------------------------------
+app.route("/auth", authRoutes);
 
 const port = 3333;
 console.log(`server is runnning on port ${port}`);
