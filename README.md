@@ -1,7 +1,7 @@
-# Hono with Lucia auth
+# Hono with OAuth 2.0( [Artic](https://github.com/pilcrowonpaper/arctic) )
 
-the htmx not really necessary,\
-you can separate the frontend with another js framework
+HTMX isn't essential here\
+you can use a separate JavaScript framework for the frontend
 
 ## Get Started
 
