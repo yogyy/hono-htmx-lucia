@@ -1,4 +1,4 @@
-# Hono with OAuth 2.0( [Artic](https://github.com/pilcrowonpaper/arctic) )
+# Hono with OAuth 2.0( [Arctic](https://github.com/pilcrowonpaper/arctic) )
 
 HTMX isn't essential here\
 you can use a separate JavaScript framework for the frontend
